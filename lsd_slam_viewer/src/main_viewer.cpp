@@ -2,7 +2,7 @@
 * This file is part of LSD-SLAM.
 *
 * Copyright 2013 Jakob Engel <engelj at in dot tum dot de> (Technical University of Munich)
-* For more information see <http://vision.in.tum.de/lsdslam> 
+* For more information see <http://vision.in.tum.de/lsdslam>
 *
 * LSD-SLAM is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -87,8 +87,7 @@ void rosThreadLoop( int argc, char** argv )
 	printf("Started ROS thread\n");
 
 	//glutInit(&argc, argv);
-
-	ros::init(argc, argv, "viewer");
+	// ros::init(argc, argv, "viewer");
 	ROS_INFO("lsd_slam_viewer started");
 
 	dynamic_reconfigure::Server<lsd_slam_viewer::LSDSLAMViewerParamsConfig> srv;
@@ -113,7 +112,7 @@ void rosThreadLoop( int argc, char** argv )
 
 void rosFileLoop( int argc, char** argv )
 {
-	ros::init(argc, argv, "viewer");
+	// ros::init(argc, argv, "viewer");
 	dynamic_reconfigure::Server<lsd_slam_viewer::LSDSLAMViewerParamsConfig> srv;
 	srv.setCallback(dynConfCb);
 
@@ -153,6 +152,7 @@ int main( int argc, char** argv )
 {
 
 
+	ros::init(argc, argv, "viewer");
 	printf("Started QApplication thread\n");
 	// Read command lines arguments.
 	QApplication application(argc,argv);

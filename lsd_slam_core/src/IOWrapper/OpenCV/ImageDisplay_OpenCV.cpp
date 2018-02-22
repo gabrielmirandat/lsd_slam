@@ -2,7 +2,7 @@
 * This file is part of LSD-SLAM.
 *
 * Copyright 2013 Jakob Engel <engelj at in dot tum dot de> (Technical University of Munich)
-* For more information see <http://vision.in.tum.de/lsdslam> 
+* For more information see <http://vision.in.tum.de/lsdslam>
 *
 * LSD-SLAM is free software: you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -116,14 +116,14 @@ void displayImage(const char* windowName, const cv::Mat& image, bool autoSize)
 
 int waitKey(int milliseconds)
 {
-	cv::waitKey(milliseconds)	
+	cv::waitKey(milliseconds);
 	return cv::waitKey(1);
 }
 
 int waitKeyNoConsume(int milliseconds)
 {
 	// Cannot implement this with OpenCV functions.
-	cv::waitKey(milliseconds)	
+	cv::waitKey(milliseconds);
 	return cv::waitKey(1);
 }
 
