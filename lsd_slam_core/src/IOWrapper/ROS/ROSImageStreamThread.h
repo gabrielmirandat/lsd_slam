@@ -26,6 +26,7 @@
 
 #include <ros/ros.h>
 #include <ros/package.h>
+#include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/CameraInfo.h>
@@ -61,20 +62,20 @@ public:
 	void operator()();
 	
 	// get called on ros-message callbacks
-	void vidCb(const sensor_msgs::ImageConstPtr img);
+    void vidCb(const sensor_msgs::ImageConstPtr &img);
 	void infoCb(const sensor_msgs::CameraInfoConstPtr info);
 
 private:
 
-	bool haveCalib;
-	Undistorter* undistorter;
+    bool haveCalib;
+    Undistorter* undistorter;
 
-	ros::NodeHandle nh_;
+    // ros::NodeHandle nh_;
 
-	std::string vid_channel;
-	ros::Subscriber vid_sub;
+    // std::string vid_channel;
+    // ros::Subscriber vid_sub;
 
-	int lastSEQ;
+    int lastSEQ;
 };
 
 }

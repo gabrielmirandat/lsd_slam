@@ -47,7 +47,7 @@ int main( int argc, char** argv )
 
 	packagePath = ros::package::getPath("lsd_slam_core")+"/";
 
-	InputImageStream* inputStream = new ROSImageStreamThread();
+    InputImageStream* inputStream = new ROSImageStreamThread();
 
 	std::string calibFile;
 	if(ros::param::get("~calib", calibFile))
@@ -57,7 +57,7 @@ int main( int argc, char** argv )
 	}
 	else
 		inputStream->setCalibration("");
-	inputStream->run();
+    inputStream->run();
 
 	Output3DWrapper* outputWrapper = new ROSOutput3DWrapper(inputStream->width(), inputStream->height());
 	LiveSLAMWrapper slamNode(inputStream, outputWrapper);

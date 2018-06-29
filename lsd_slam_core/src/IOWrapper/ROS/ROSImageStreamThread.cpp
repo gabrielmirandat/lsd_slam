@@ -30,6 +30,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <cv_bridge/cv_bridge.h>
+#include <image_transport/image_transport.h>
+
 
 namespace lsd_slam
 {
@@ -39,20 +42,24 @@ using namespace cv;
 
 ROSImageStreamThread::ROSImageStreamThread()
 {
-	// subscribe
-	vid_channel = nh_.resolveName("image");
-	vid_sub          = nh_.subscribe(vid_channel,1, &ROSImageStreamThread::vidCb, this);
+    ros::NodeHandle nh;
+    std::string vid_channel;
+    vid_channel = nh.resolveName("image");
+    std::cout << "FILE: " << vid_channel << std::endl;
+    image_transport::ImageTransport it(nh);
 
+    image_transport::Subscriber sub = it.subscribe(vid_channel,1, &ROSImageStreamThread::vidCb, this);
+    // nh.subscribe(vid_channel,1, &ROSImageStreamThread::vidCb, this);
 
-	// wait for cam calib
-	width_ = height_ = 0;
+    // wait for cam calib
+    width_ = height_ = 0;
 
-	// imagebuffer
-	imageBuffer = new NotifyBuffer<TimestampedMat>(8);
-	undistorter = 0;
-	lastSEQ = 0;
+    // imagebuffer
+    imageBuffer = new NotifyBuffer<TimestampedMat>(8);
+    undistorter = 0;
+    lastSEQ = 0;
 
-	haveCalib = false;
+    haveCalib = false;
 }
 
 ROSImageStreamThread::~ROSImageStreamThread()
@@ -62,37 +69,37 @@ ROSImageStreamThread::~ROSImageStreamThread()
 
 void ROSImageStreamThread::setCalibration(std::string file)
 {
-	if(file == "")
-	{
-		ros::Subscriber info_sub         = nh_.subscribe(nh_.resolveName("camera_info"),1, &ROSImageStreamThread::infoCb, this);
+//     if(file == "")
+//     {
+//         ros::Subscriber info_sub         = nh_.subscribe(nh_.resolveName("camera_info"),1, &ROSImageStreamThread::infoCb, this);
+//
+//         printf("WAITING for ROS camera calibration!\n");
+//         while(width_ == 0)
+//         {
+//             ros::getGlobalCallbackQueue()->callAvailable(ros::WallDuration(0.03));
+//         }
+//         printf("RECEIVED ROS camera calibration!\n");
+//
+//         info_sub.shutdown();
+//     }
+//     else
+//     {
+        undistorter = Undistorter::getUndistorterForFile(file.c_str());
 
-		printf("WAITING for ROS camera calibration!\n");
-		while(width_ == 0)
-		{
-			ros::getGlobalCallbackQueue()->callAvailable(ros::WallDuration(0.03));
-		}
-		printf("RECEIVED ROS camera calibration!\n");
+        if(undistorter==0)
+        {
+            printf("Failed to read camera calibration from file... wrong syntax?\n");
+            exit(0);
+        }
 
-		info_sub.shutdown();
-	}
-	else
-	{
-		undistorter = Undistorter::getUndistorterForFile(file.c_str());
+        fx_ = undistorter->getK().at<double>(0, 0);
+        fy_ = undistorter->getK().at<double>(1, 1);
+        cx_ = undistorter->getK().at<double>(2, 0);
+        cy_ = undistorter->getK().at<double>(2, 1);
 
-		if(undistorter==0)
-		{
-			printf("Failed to read camera calibration from file... wrong syntax?\n");
-			exit(0);
-		}
-
-		fx_ = undistorter->getK().at<double>(0, 0);
-		fy_ = undistorter->getK().at<double>(1, 1);
-		cx_ = undistorter->getK().at<double>(2, 0);
-		cy_ = undistorter->getK().at<double>(2, 1);
-
-		width_ = undistorter->getOutputWidth();
-		height_ = undistorter->getOutputHeight();
-	}
+        width_ = undistorter->getOutputWidth();
+        height_ = undistorter->getOutputHeight();
+//     }
 
 	haveCalib = true;
 }
@@ -110,8 +117,9 @@ void ROSImageStreamThread::operator()()
 }
 
 
-void ROSImageStreamThread::vidCb(const sensor_msgs::ImageConstPtr img)
+void ROSImageStreamThread::vidCb(const sensor_msgs::ImageConstPtr& img)
 {
+    std::cout << "VIDCB" << std::endl;
 	if(!haveCalib) return;
 
 	cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::MONO8);
